@@ -920,6 +920,38 @@
       border-radius: 3px;
       flex-shrink: 0;
     }
+
+    .inv-switch-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .inv-switch {
+      display: flex;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .inv-switch button {
+      flex: 1;
+      font: inherit;
+      font-size: 11px;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(232, 237, 245, 0.65);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .inv-switch button:hover { color: #fff; }
+    .inv-switch button.active {
+      background: rgba(52, 199, 89, 0.22);
+      color: #7defa0;
+    }
     
     /* ── GUIDE MODAL ─────────────────────────────────────────── */
     #guide-overlay {
@@ -1280,7 +1312,13 @@
   <div class="legend-row"><span class="legend-swatch" style="background:#AA2828"></span><span data-i18n="legend_med_dark">Între personal administrativ și personal total</span></div>
   <div class="legend-row"><span class="legend-swatch" style="background:#CC6060"></span><span data-i18n="legend_med_light">Între personal total și cheltuieli funcționare</span></div>
   <div class="legend-row"><span class="legend-swatch" style="background:#F5C0C0"></span><span data-i18n="legend_light">Peste cheltuieli funcționare</span></div>
-  <div class="legend-row"><span class="legend-swatch" style="background:#34C759"></span><span data-i18n="legend_surplus">Excedent: peste funcționare + dezvoltare</span></div>
+  <div class="legend-row"><span class="legend-swatch" style="background:#34C759"></span><span data-i18n="legend_surplus">Excedent</span></div>
+  <div class="inv-switch-label" data-i18n="inv_label">Investiții</div>
+  <div class="inv-switch" role="group">
+    <button class="active" data-mode="all" onclick="setSurplusMode('all')" data-i18n="inv_all">Incluse</button>
+    <button data-mode="no_own" onclick="setSurplusMode('no_own')" data-i18n="inv_no_own">Fără proprii</button>
+    <button data-mode="none" onclick="setSurplusMode('none')" data-i18n="inv_none">Excluse</button>
+  </div>
 </div>
 
 
@@ -1422,7 +1460,11 @@ const TRANSLATIONS = {
     'legend_med_dark': 'Între personal administrativ și personal total',
     'legend_med_light': 'Între personal total și cheltuieli funcționare',
     'legend_light': 'Peste cheltuieli funcționare',
-    'legend_surplus': 'Excedent: peste funcționare + dezvoltare',
+    'legend_surplus': 'Excedent',
+    'inv_label': 'Investiții',
+    'inv_all': 'Incluse',
+    'inv_no_own': 'Fără proprii',
+    'inv_none': 'Excluse',
     'tt_edit_unavail': 'Editarea este disponibilă doar în Situație Actuală',
     'tt_population': 'Populație',
     'tt_commune_pop': 'Populație comună',
@@ -1436,7 +1478,7 @@ const TRANSLATIONS = {
     'ineff_med_dark': '🟠 Între personal administrativ și personal total',
     'ineff_med_light': '🟡 Între personal total și cheltuieli funcționare',
     'ineff_light': '🩷 Peste cheltuieli funcționare',
-    'ineff_surplus': '🟢 Excedent: peste funcționare + dezvoltare',
+    'ineff_surplus': '🟢 Excedent',
     'detail_current_label': 'Situație actuală',
     'detail_proposed_unit': 'Unitate #',
     'detail_inhabitants': 'Locuitori',
@@ -1465,7 +1507,7 @@ const TRANSLATIONS = {
     'fin_development': 'Cheltuieli dezvoltare',
     'fin_deficit_title': 'DEFICIT (subvenții)',
     'fin_deficit_label': 'necesar acoperit din transferuri/subvenții',
-    'fin_surplus_label': 'excedent față de cheltuieli de funcționare și dezvoltare',
+    'fin_surplus_label': 'excedent față de cheltuieli',
     'fin_savings_title': 'Economii estimate',
     'fin_total_operating': 'Cheltuieli funcționare totale',
     'fin_largest_uat': 'Cel mai mare UAT (rămâne)',
@@ -1534,7 +1576,11 @@ const TRANSLATIONS = {
     'legend_med_dark': 'Between admin and total personnel',
     'legend_med_light': 'Between total personnel and operating costs',
     'legend_light': 'Above operating expenditures',
-    'legend_surplus': 'Surplus: above operating + development',
+    'legend_surplus': 'Surplus',
+    'inv_label': 'Investments',
+    'inv_all': 'Included',
+    'inv_no_own': 'Own excluded',
+    'inv_none': 'Excluded',
     'tt_edit_unavail': 'Edit mode is only available in Current Situation view',
     'tt_population': 'Population',
     'tt_commune_pop': 'Commune population',
@@ -1548,7 +1594,7 @@ const TRANSLATIONS = {
     'ineff_med_dark': '🟠 Between admin and total personnel',
     'ineff_med_light': '🟡 Between total personnel and operating costs',
     'ineff_light': '🩷 Above operating expenditures',
-    'ineff_surplus': '🟢 Surplus: above operating + development',
+    'ineff_surplus': '🟢 Surplus',
     'detail_current_label': 'Current situation',
     'detail_proposed_unit': 'Unit #',
     'detail_inhabitants': 'Inhabitants',
@@ -1577,7 +1623,7 @@ const TRANSLATIONS = {
     'fin_development': 'Development expenditures',
     'fin_deficit_title': 'DEFICIT (subsidies)',
     'fin_deficit_label': 'to be covered by transfers/subsidies',
-    'fin_surplus_label': 'surplus over operating and development expenditures',
+    'fin_surplus_label': 'surplus over expenditures',
     'fin_savings_title': 'Estimated savings',
     'fin_total_operating': 'Total operating expenditures',
     'fin_largest_uat': 'Largest UAT (retained)',
@@ -1986,12 +2032,7 @@ map.on('load', async () => {
 
   geoData = data;
 
-  // Green: own revenues exceed operating + development spending (same rule as the detail panel's surplus box)
-  if (finData) {
-    for (const [siruta, d] of Object.entries(finData)) {
-      if (d.own_revenues > (d.chelt_functionare + d.chelt_dezvoltare)) INEFFICIENCY_COLORS[siruta] = '#34C759';
-    }
-  }
+  applySurplusColors();
 
   // Pre-compute display colors and build lookup maps
   geoData.features.forEach((f, idx) => {
@@ -2488,6 +2529,45 @@ function resetAllGroups() {
 
   applyGroupColors();
   updateEditPanel();
+}
+
+// ── SURPLUS (green) ────────────────────────────────────────────────────────
+// Green: own revenues exceed spending. The mode decides which investments count:
+//   all    – operating + development (same rule as the detail panel's surplus box)
+//   no_own – development minus the commune's own investments (PNRR still counts)
+//   none   – operating only
+const BASE_INEFFICIENCY_COLORS = { ...INEFFICIENCY_COLORS };
+let surplusMode = 'all';
+
+function surplusSpending(d) {
+  const op  = d.chelt_functionare || 0;
+  const dev = d.chelt_dezvoltare  || 0;
+  if (surplusMode === 'none')   return op;
+  if (surplusMode === 'no_own') return op + dev - (d.chelt_investitii || 0);
+  return op + dev;
+}
+
+function applySurplusColors() {
+  Object.assign(INEFFICIENCY_COLORS, BASE_INEFFICIENCY_COLORS);
+  if (!finData) return;
+  for (const [siruta, d] of Object.entries(finData)) {
+    if ((d.own_revenues || 0) > surplusSpending(d)) INEFFICIENCY_COLORS[siruta] = '#34C759';
+  }
+}
+
+function setSurplusMode(mode) {
+  surplusMode = mode;
+  document.querySelectorAll('.inv-switch button').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === mode));
+  applySurplusColors();
+  // The open detail panel was computed under the old rule
+  if (document.getElementById('detail').classList.contains('open')) closeDetail();
+  if (!geoData) return;
+  geoData.features.forEach(f => {
+    const p = f.properties;
+    p._inefficiency_color = INEFFICIENCY_COLORS[String(p.siruta)] || '#2D3748';
+  });
+  applyGroupColors();
 }
 
 // ── APPLY COLORS ───────────────────────────────────────────────────────────
@@ -3074,7 +3154,7 @@ function renderFinMetrics(d, showSavings, showCapacitate = true) {
   }
 
   // ── 4. DEFICIT (subvenții) ──
-  const deficit = (d.chelt_functionare + d.chelt_dezvoltare) - d.own_revenues;
+  const deficit = surplusSpending(d) - d.own_revenues;
   const isDeficit = deficit > 0;
   const deficitHTML = `
     <div class="fin-section">
