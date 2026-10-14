@@ -2557,11 +2557,19 @@ function surplusSpending(d) {
   return op + dev;
 }
 
+// Same formula the detail panel uses (aggregateFinForSirutas). The stored
+// own_revenues matches it everywhere except Bucharest's sectors, where it
+// leaves out the income-tax share.
+function ownRevenues(d) {
+  return (d.impozite_proprietate || 0) + (d.taxe_locale || 0) +
+         (d.venituri_operationale || 0) + (d.pit_040100 || 0);
+}
+
 function applySurplusColors() {
   Object.assign(INEFFICIENCY_COLORS, BASE_INEFFICIENCY_COLORS);
   if (!finData) return;
   for (const [siruta, d] of Object.entries(finData)) {
-    if ((d.own_revenues || 0) > surplusSpending(d)) INEFFICIENCY_COLORS[siruta] = '#34C759';
+    if (ownRevenues(d) > surplusSpending(d)) INEFFICIENCY_COLORS[siruta] = '#34C759';
   }
 }
 
